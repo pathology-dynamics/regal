@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from snorkel.classification import cross_entropy_with_probs
 import numpy as np
 import logging
-from flyingsquid.label_model import LabelModel
 
 logger = logging.getLogger('__file__')
 

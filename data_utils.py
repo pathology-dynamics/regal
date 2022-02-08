@@ -1,7 +1,7 @@
 import pandas as pd
 import torch
 from snorkel.labeling import PandasLFApplier, LFApplier
-from snorkel.labeling.apply.dask import PandasParallelLFApplier
+# from snorkel.labeling.apply.dask import PandasParallelLFApplier
 from tqdm.auto import tqdm, trange
 import pickle
 # tqdm.pandas()
@@ -54,7 +54,7 @@ def prepare_data(args, dict_path, tokenizer, preprocessed_dir=None):
 
 def get_noisy_labels(text, lfs, pandas=False, n_cores=16):
     if pandas:
-        applier = PandasParallelLFApplier(lfs=lfs)
+        applier = PandasLFApplier(lfs=lfs)
         noisy_labels = applier.apply(text, n_cores)
     else:
         applier = LFApplier(lfs=lfs)

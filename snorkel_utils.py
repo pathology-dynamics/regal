@@ -1,5 +1,5 @@
 from snorkel.labeling import LabelingFunction
-from snorkel.preprocess.nlp import SpacyPreprocessor
+# from snorkel.preprocess.nlp import SpacyPreprocessor
 from snorkel.labeling import LFAnalysis
 from snorkel.labeling import PandasLFApplier
 from snorkel.preprocess import preprocessor
