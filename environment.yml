@@ -1,0 +1,4 @@
+name: /nethome/dkartchner3/conda_envs/regal
+channels:
+  - defaults
+prefix: /nethome/dkartchner3/conda_envs/regal

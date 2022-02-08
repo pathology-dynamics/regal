@@ -82,40 +82,6 @@ def masked_cross_entropy_with_probs(
     return loss, n
 
 
-class RuleProposalNetwork(nn.Module):
-    def __init__(self, 
-                 basemodel, 
-                 word_attention, 
-                 sentences=None, 
-                 seeds=None, 
-                 rules=None):
-        self.sentences = sentences
-        # self.nlp_blobs = 
-        # self.word_counts = self.get_word_counts()
-        # self.dependency_parses = self.get_depencency_parses()
-        self.basemodel = basemodel
-        self.word_attention = word_attention
-    def get_word_counts(self):
-        pass
-
-    def generate_keyword_candidates(self):
-        pass
-
-    def get_rule_metrics(self, rule):
-        pass
-
-    def get_similar_keywords(self, word):
-        pass
-    
-    def forward(self, input_ids, attention_masks):
-        last_states, cls_token = basemodel(input_ids=input_ids,
-                                           attention_masks=attention_masks, 
-                                           token_type_ids=None)
-        loss, probs, attention = word_attention(last_states, attention_masks)
-        return loss, probs, attention
-
-
-
 class WordAttention(nn.Module):
     def __init__(self, input_size, n_classes, hidden_size):
         super(WordAttention, self).__init__()
@@ -144,81 +110,30 @@ class WordAttention(nn.Module):
         # logger.debug(f"Hidden States: {hidden_states.size()}")
         # We use an MLP to get attention
         # Get attention.  Should have shape (batch_size x max_len x n_classes)
-        # logger.debug(hidden_states)
-        # logger.debug(f"Hidden states: {hidden_states.shape}")
-        # logger.debug(f"fc1: {self.fc1.weight.size()}")
         z0 = self.dropout(torch.tanh(self.fc1(hidden_states)))
         attn_logits = self.fc2(z0)
 
         # Check shape is what we want
-        # logger.debug(attn_logits.shape)
 
         # Calculate attention
         attention = masked_softmax(attn_logits, masks, dim=1)
 
         # Should have shape (batch_size x n_classes x input_size)
         class_reps = torch.sum(attention.unsqueeze(-1) * hidden_states.unsqueeze(-2), dim=1)
-        # logger.debug(f"Class reps: {class_reps.size()}")
 
         # Get vector representing each document
         doc_vector = self.weighted_class_sum(class_reps.transpose(1, 2)).squeeze()
-        # doc_vector = torch.sum(masks.unsqueeze(-1) * hidden_states, dim=2) / masks.sum(dim=1).unsqueeze(-1)
-        # logger.debug(doc_vector.size())
+        
 
         # Logits should have shape(batch_size x n_classes)
         logits = torch.sum(class_reps * self.class_mat, dim=2)
-        # logger.debug(f"logits: {logits.size()}")
+        
 
         # Get output probabilities for each class
         probs = F.softmax(logits, dim=1)
 
         return logits, probs, attention, doc_vector
 
-# class BertPredictionHeadTransform(nn.Module):
-#     def __init__(self, args):
-#         super().__init__()
-#         self.dense = nn.Linear(args.hidden_size, args.hidden_size)
-#         if isinstance(args.hidden_act, str):
-#             self.transform_act_fn = ACT2FN[args.hidden_act]
-#         else:
-#             self.transform_act_fn = args.hidden_act
-#         self.LayerNorm = nn.LayerNorm(args.hidden_size, eps=args.layer_norm_eps)
-
-#     def forward(self, hidden_states):
-#         hidden_states = self.dense(hidden_states)
-#         hidden_states = self.transform_act_fn(hidden_states)
-#         hidden_states = self.LayerNorm(hidden_states)
-#         return hidden_states
-
-# class BertLMPredictionHead(nn.Module):
-#     def __init__(self, args):
-#         super().__init__()
-#         self.transform = BertPredictionHeadTransform(config)
-
-#         # The output weights are the same as the input embeddings, but there is
-#         # an output-only bias for each token.
-#         self.decoder = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-
-#         self.bias = nn.Parameter(torch.zeros(config.vocab_size))
-
-#         # Need a link between the two variables so that the bias is correctly resized with `resize_token_embeddings`
-#         self.decoder.bias = self.bias
-
-#     def forward(self, hidden_states):
-#         hidden_states = self.transform(hidden_states)
-#         hidden_states = self.decoder(hidden_states)
-#         return hidden_states
-
-# class FcModel(nn.Module):
-#     def __init__(self, input_size, nhid, nclass):
-#         super(FcModel, self).__init__()
-#         self.fc1 = nn.Linear(input_size, nhid)
-#         self.fc2 = nn.Linear(nhid, nclass)
-
-#     def forward(self, x):
-#         x = F.tanh(self.fc1(x))
-#         x = self.fc2(x)
-#         return F.log_softmax(x, dim=1)
 
 class AttentionModel(nn.Module):
     def __init__(self, input_size, max_rules, fc_size, nclass):
@@ -247,14 +162,11 @@ class AttentionModel(nn.Module):
 
         # Mask of which rules are in use
         mask = torch.zeros(x_lf.size(0), self.max_rules, device=x_lf.device)
-        # logger.debug(f'Mask: {mask.size()}')
-        # logger.debug(f'n_rules: {n_rules}')
         mask[:, :n_rules] = (x_lf >= 0).float()
 
         # Features of document and which rules apply
         # We concatenate the applicable rules to the input representation
         # to help our model learn from their correlations
-        # x = torch.cat((x_l, mask), 1)
         x = x_l
         z0 = self.dropout(torch.tanh(self.fc1(x)))
         z = self.fc2(z0)
@@ -265,15 +177,10 @@ class AttentionModel(nn.Module):
         score = masked_softmax(z, rules_mask, dim=1)
         coverage_score = score * mask #conditional labeling source score A_i
 
-        # logger.debug(f'score: {score.size()}')
-        # logger.debug(f'x_lf: {x_lf.size()}')
-
         score_matrix = torch.empty(x_lf.size(0), self.nclass, device=x_lf.device)
-        # logger.debug(f'score_matrix: {score_matrix.size()}')
         for k in range(self.nclass):
             score_matrix[:, k] = (score[:, :n_rules] * (x_lf == k).float()).sum(dim=1)
 
-        # softmax_new_y = F.log_softmax(score_matrix, dim=1) #weighted soft predictions
         score_matrix[score_matrix == 0] = -10000
         softmax_new_y = F.softmax(score_matrix, dim=1) #weighted soft predictions
         return softmax_new_y, coverage_score

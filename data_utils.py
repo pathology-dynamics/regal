@@ -94,8 +94,6 @@ def prepare_text(sentences,
 
     # Encode, pad, and truncate sentences
     for sent in tqdm(sentences):
-        # encoded_dict = tokenizer()
-        # encoded_dict = tokenizer.encode_plus(
         encoded_dict = tokenizer(
                             sent,                      # Sentence to encode.
                             # add_special_tokens = True, # Add '[CLS]' and '[SEP]'

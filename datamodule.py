@@ -25,11 +25,6 @@ class RPNCollate():
         '''
         Collate function to turn batch from dataloader into clean dict of output
         '''
-        # print(batch)
-        # print("Length", len(batch))
-        # seq, attn_mask, labels, noisy_labels, noised_ids, mlm_labels, starts, ends = *batch
-
-
         input_ids = torch.stack(tuple([x['input_ids'] for x in batch]))
         attn_mask = torch.stack(tuple([x['attention_masks'] for x in batch]))
         labels = torch.stack(tuple([x['labels'] for x in batch]))

@@ -33,11 +33,6 @@ def split_data(data, label_matrix):
         else:
             data['labeled'][key] = [t for (i,t) in zip(mask, val) if i == 1]
             data['unlabeled'][key] = [t for (i,t) in zip(mask, val) if i == 0]
-            # print(len(data['unlabeled'][key]))
-    # data['labeled'] = {key: val[mask] for key, val in train.items() if key != 'text'}
-    # data['labeled']['text'] = [t for (i,t) in zip(mask, train['text']) if i == 1]
-    # data['unlabeled'] = {key: val[~mask] for key, val in train.items() if key != 'text'}
-    # data['unlabeled']['text'] = [t for (i,t) in zip(mask, train['text']) if i == 0]
 
     return data
 
@@ -54,14 +49,11 @@ if __name__=='__main__':
 
     data = torch.load(args.data_path)
     lf_kwds = ujson.load(open(args.rule_dict_path, 'r'))
-    # print([(w, int(key)) for (key, vals) in lf_kwds.items() for w in vals])
     lfs = [make_keyword_lf(w, int(key), rpn_generated=False) for (key, vals) in lf_kwds.items() for w in vals]
 
     label_matrix = LFApplier(lfs).apply(data['train']['text'])
     analysis_df = LFAnalysis(label_matrix).lf_summary(Y=data['train']['labels'].numpy())
     print(analysis_df)
-    # print(data['train']['noisy_labels'].size())
-    # print(torch.LongTensor(label_matrix).size())
     data['train']['noisy_labels'] = torch.LongTensor(label_matrix)
 
     for data_slice in ['test','valid']:

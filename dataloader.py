@@ -13,7 +13,6 @@ from torch.utils.data import Dataset, TensorDataset
 from snorkel.labeling import LFApplier
 from snorkel_utils import make_keyword_lf
 
-# from allennlp.nn.utils import flatten_and_batch_shift_indices
 
 
 # Need to set tokenizers_parallelism environment variable to avoid lots of warnings
@@ -468,8 +467,7 @@ class RPNDataset(Dataset):
 
     def __getitem__(self, i):
         idx = self.idx_map[i]
-        # logger.debug(f"INDEX: {i}, {idx}")
-
+    
         seq = self.encoded_text[idx]
         attn_mask = self.attention_masks[idx]
         labels = self.labels[idx]
@@ -478,7 +476,6 @@ class RPNDataset(Dataset):
         starts = self.word_starts[idx]
         ends = self.word_ends[idx]
         soft_labels = self.soft_labels[idx]
-        # noised_ids, mlm_labels = self.noise_input(seq, starts, ends)
 
         output_dict = {'input_ids': seq, 
                        'attention_masks': attn_mask, 
@@ -583,24 +580,5 @@ class RegalDataset(Dataset):
 
         return seq, attn_mask, labels, noisy_labels, noised_ids, mlm_labels
 
-
-# class RegalDataModule(pl.LightningDataModule):
-#     def __init__(self, 
-#                  data_dir, 
-#                  tokenizer_name='bert-base-uncased', 
-#                  tokenizer_path=None,
-#                  ):
-#         super(RegalDataModule, self).__init__()
-
-#         if tokenizer_path is not None:
-#             self.tokenizer = pickle.load(open(tokenizer_path, 'rb'))
-
-#         else:
-#             self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
-
-    
-#     def prepare_data(self,):
-#         # Tokenize dataset
-#         pass
 
 
