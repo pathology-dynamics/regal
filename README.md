@@ -40,7 +40,7 @@ To run the models described in the paper, first [download the preprocessed data]
 
 Assuming you have a [properly formatted dataset](#use-your-own-dataset) located at `data/yelp.pt`, you ca run REGAL from the command line as follows:
 ```
-python run_rpn.py --data_path temp/yelp.pt --num_classes 2 --output yelp_output
+python run_rpn.py --data_path data/yelp.pt --num_classes 2 --output yelp_output --min_lf 2
 ```
 
 Examples of running REGAL with a variety of options can be found in the examples in `scripts/`
