@@ -29,14 +29,20 @@ git clone https://github.com/pathology-dynamics/regal.git
 cd regal
 ```
 
-2. Create a conda environment with REGAL's dependencies
+2. Create a conda environment with REGAL's dependencies.
+_NOTE:  You will also need to download stopwords from NLTK_
 ```
 conda env create -f environment.yml
 conda activate regal
+python -m nltk.downloader stopwords
 ```
 
 # Usage
-To run the models described in the paper, first [download the preprocessed data](https://figshare.com/articles/dataset/regal_data_zip/19090253).
+To run the models described in the paper, first [download the preprocessed data](https://figshare.com/articles/dataset/regal_data_zip/19090253).  The following script will create the directories and download the data used in the demos:
+
+```
+bash download_data.sh
+```
 
 Assuming you have a [properly formatted dataset](#use-your-own-dataset) located at `data/yelp.pt`, you ca run REGAL from the command line as follows:
 ```
