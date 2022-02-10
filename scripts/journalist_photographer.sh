@@ -1,5 +1,3 @@
+#!/bin/bash/
+
 python run_rpn.py --data_path temp/journalist_photographer.pt --num_classes 2 --batch_size 128 --warmup_epochs 0 --max_iters 1000 --max_rule_iters 1000 --refresh --oracle --model_no 1 --output journalist_photographer --autoeval --max_rule_length 1 --min_lf 2 #--refresh_data
-
-# python run_rpn.py --data_path temp/journalist_photographer.pt --num_classes 2 --batch_size 128 --warmup_epochs 0 --max_iters 1000 --max_rule_iters 1000 --refresh --oracle --model_no 2 --output journalist_photographer --autoeval --max_rule_length 1 --min_lf 2 #--refresh_data
-
-# python run_rpn.py --data_path temp/journalist_photographer.pt --num_classes 2 --batch_size 128 --warmup_epochs 0 --max_iters 1000 --max_rule_iters 1000 --refresh --oracle --model_no 3 --output journalist_photographer --autoeval --max_rule_length 1 --min_lf 2 #--refresh_data
